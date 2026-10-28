@@ -64,6 +64,17 @@ def highpass(x, cutoff, order=2):
 _rng = np.random.default_rng(1337)
 
 
+def set_seed(seed):
+    """Reset the noise generator so a render is reproducible.
+
+    Agents should call this before a render when they need the same
+    bytes on a re-run. Without it, noise state carries across renders
+    and mixes drift slightly run to run.
+    """
+    global _rng
+    _rng = np.random.default_rng(int(seed))
+
+
 def noise(n):
     return _rng.standard_normal(n)
 

@@ -6,6 +6,21 @@ What it is
 A small tool that makes music from math.
 It does not use samples. It does not use recordings.
 Each sound is built from sound waves in code.
+It is made for Muse agents and AI agents in general.
+A human can use it too. The agent path is the main path.
+See `AGENTS.md` for the full agent instructions.
+
+For agents, in short
+---------------------
+Use `--json` on every command. Then the output is only JSON.
+Always pass `--seed` if you want the same audio again.
+Always run QC after a render, before you claim a track is done.
+
+    python3 music_tool.py list --json
+    python3 music_tool.py render rainy-window --seed 42 --json
+    python3 music_tool.py make my-track --style lofi --tempo 80 \
+        --key "C minor" --bars 8 --seed 7 --json
+    python3 music_tool.py qc --out out/my-track --json
 
 How stems work
 --------------

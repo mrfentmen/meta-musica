@@ -12,6 +12,7 @@ Prints one line per file plus a summary. Exit 0 = pass, 1 = fail.
 Run: python3 qc.py  or  python3 music_tool.py qc
 """
 import glob
+import json
 import os
 import subprocess
 import sys
@@ -46,7 +47,7 @@ def longest_silence(x, thresh=0.005):
     return best * 0.1
 
 
-def check_file(path):
+def check_file(path, quiet=False):
     x = decode_mp3(path)
     peak = float(np.max(np.abs(x))) if len(x) else 0.0
     rms = float(np.sqrt(np.mean(x ** 2))) if len(x) else 0.0
@@ -62,27 +63,40 @@ def check_file(path):
     if gap > 2.0:
         problems.append(f"silence gap {gap:.1f}s")
     status = "PASS" if not problems else "FAIL: " + "; ".join(problems)
-    print(f"{os.path.basename(path):42} {dur:5.1f}s "
-          f"peak={peak:.3f} rms={rms:.3f} gap={gap:.1f}s  {status}")
-    return problems, x
+    if not quiet:
+        print(f"{os.path.basename(path):42} {dur:5.1f}s "
+              f"peak={peak:.3f} rms={rms:.3f} gap={gap:.1f}s  {status}")
+    return problems, x, {"file": os.path.basename(path), "path": path,
+                         "duration_s": round(dur, 1), "peak": peak,
+                         "rms": rms, "gap_s": gap, "problems": problems}
 
 
-def main(out_dir=None, args_out=None):
+def main(out_dir=None, args_out=None, as_json=False):
     out_dir = out_dir or args_out or OUT
     files = sorted(glob.glob(os.path.join(out_dir, "*.mp3")))
     if not files:
-        print(f"No MP3 files found in {out_dir}")
+        if as_json:
+            print(json.dumps({"files": [], "failures": 1,
+                              "error": f"No MP3 files found in {out_dir}"}))
+        else:
+            print(f"No MP3 files found in {out_dir}")
         return 1
     decoded = {}
     failures = 0
+    results = []
     for path in files:
         try:
-            problems, x = check_file(path)
+            problems, x, info = check_file(path, quiet=as_json)
         except subprocess.CalledProcessError:
-            print(f"{os.path.basename(path)}  FAIL: not decodable")
+            if as_json:
+                results.append({"file": os.path.basename(path), "path": path,
+                                "problems": ["not decodable"]})
+            else:
+                print(f"{os.path.basename(path)}  FAIL: not decodable")
             failures += 1
             continue
         decoded[path] = x
+        results.append(info)
         if problems:
             failures += 1
     # stems distinct: pairwise correlation for stems of the same track
@@ -92,13 +106,17 @@ def main(out_dir=None, args_out=None):
         if "-stem-" in base:
             track = base.split("-stem-")[0]
             stems_by_track.setdefault(track, []).append(path)
-    print("\nStem distinct check (correlation must be below 0.99):")
+    stem_results = {}
+    if not as_json:
+        print("\nStem distinct check (correlation must be below 0.99):")
     for track, paths in sorted(stems_by_track.items()):
         if len(paths) < 2:
-            print(f"  {track}: only {len(paths)} stem(s), skipped")
+            stem_results[track] = {"stems": len(paths), "worst_corr": None,
+                                   "pass": True, "note": "skipped"}
+            if not as_json:
+                print(f"  {track}: only {len(paths)} stem(s), skipped")
             continue
         worst = 0.0
-        worst_pair = None
         for i in range(len(paths)):
             for j in range(i + 1, len(paths)):
                 a, b = decoded[paths[i]], decoded[paths[j]]
@@ -106,14 +124,22 @@ def main(out_dir=None, args_out=None):
                 if n == 0:
                     continue
                 corr = abs(float(np.corrcoef(a[:n], b[:n])[0, 1]))
-                if corr > worst:
-                    worst, worst_pair = corr, (paths[i], paths[j])
+                worst = max(worst, corr)
         ok = worst < 0.99
         if not ok:
             failures += 1
-        print(f"  {track}: {len(paths)} stems, worst corr={worst:.3f} "
-              f"{'PASS' if ok else 'FAIL'}")
-    print(f"\n{len(files)} files checked, {failures} failure(s)")
+        stem_results[track] = {"stems": len(paths), "worst_corr": worst,
+                               "pass": ok}
+        if not as_json:
+            print(f"  {track}: {len(paths)} stems, worst corr={worst:.3f} "
+                  f"{'PASS' if ok else 'FAIL'}")
+    if as_json:
+        print(json.dumps({"files": results, "stems": stem_results,
+                          "files_checked": len(files),
+                          "failures": failures,
+                          "pass": failures == 0}, indent=2))
+    else:
+        print(f"\n{len(files)} files checked, {failures} failure(s)")
     return 1 if failures else 0
 
 

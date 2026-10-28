@@ -47,8 +47,14 @@ def _wav_to_mp3(wav_path):
 
 
 def render(name, stems, gains, out_dir, stems_only=False, mix_only=False,
-           reverb_wet=0.20):
-    """Write stems and/or mix as MP3. Returns list of MP3 paths."""
+           reverb_wet=0.20, ceiling=0.89):
+    """Write stems and/or mix as MP3. Returns list of MP3 paths.
+
+    Ceiling is the WAV peak before MP3 encoding. Presets use 0.89.
+    Agent-made tracks use 0.80, so MP3 decode overshoot (which can
+    push a 0.89 WAV mix just over 1.0, as a short synthwave test did)
+    stays inside the QC peak range.
+    """
     os.makedirs(out_dir, exist_ok=True)
     for s in stems.values():
         s.trim()
@@ -59,12 +65,12 @@ def render(name, stems, gains, out_dir, stems_only=False, mix_only=False,
     if not mix_only:
         for sname, b in bufs.items():
             wav = os.path.join(out_dir, f"{name}-stem-{sname}.wav")
-            write_wav(wav, limiter(b, ceiling=0.89))
+            write_wav(wav, limiter(b, ceiling=ceiling))
             made.append(_wav_to_mp3(wav))
     if not stems_only:
         mix = sum(bufs.values())
         stereo = limiter(reverb_stereo(mix, wet=reverb_wet, decay=2.2),
-                         ceiling=0.89)
+                         ceiling=ceiling)
         wav = os.path.join(out_dir, f"{name}-mix.wav")
         write_wav(wav, stereo)
         made.append(_wav_to_mp3(wav))
