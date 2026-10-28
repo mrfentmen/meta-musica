@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Music Tool</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+  <h1>Music Tool</h1>
+  <p class="tagline">Music made from math. No samples. No recordings.</p>
+  <p class="tagline">Pick a track and press play. Or make a new one below.</p>
+</header>
+
+<main>
+  <!-- 1. Make music -->
+  <section id="make">
+    <h2>Make music</h2>
+    <p>Fill in the boxes. Press Make. You get a mix and each part on its own.</p>
+    <form id="make-form">
+      <label>Name
+        <input id="make-name" type="text" placeholder="my-track" required>
+        <small>Small letters, numbers, and dashes only.</small>
+      </label>
+      <label>Style
+        <select id="make-style">
+          <option value="lofi">lo-fi / chill</option>
+          <option value="synthwave">synthwave</option>
+          <option value="folk">folk / acoustic</option>
+          <option value="dark">dark / horror</option>
+          <option value="epic">epic game music</option>
+        </select>
+      </label>
+      <label>Tempo (beats per minute)
+        <input id="make-tempo" type="number" value="80" min="40" max="200">
+      </label>
+      <label>Key
+        <input id="make-key" type="text" value="C minor" placeholder="C minor">
+        <small>Like “C minor” or “G major”.</small>
+      </label>
+      <label>Bars
+        <input id="make-bars" type="number" value="8" min="1" max="32">
+        <small>One bar is 4 beats.</small>
+      </label>
+      <label>Seed
+        <input id="make-seed" type="number" value="7">
+        <small>Same seed gives the same music again.</small>
+      </label>
+      <button type="submit" class="big">Make music</button>
+    </form>
+    <p id="make-status" class="status" aria-live="polite"></p>
+    <div id="make-result" class="result" hidden>
+      <h3 id="make-result-title"></h3>
+      <p><span id="make-qc-badge" class="badge">Checking…</span></p>
+      <div id="make-mix"></div>
+      <div id="make-stems"></div>
+    </div>
+  </section>
+
+  <!-- 2. Preset tracks -->
+  <section id="presets">
+    <h2>Ready-made tracks</h2>
+    <p>These come with the tool. Press play on the mix, or open the parts.</p>
+    <label>Filter by style
+      <select id="preset-filter">
+        <option value="">All styles</option>
+        <option value="lofi">lo-fi / chill</option>
+        <option value="synthwave">synthwave</option>
+        <option value="folk">folk / acoustic</option>
+        <option value="dark">dark / horror</option>
+        <option value="epic">epic game music</option>
+      </select>
+    </label>
+    <div id="preset-list" class="cards"></div>
+  </section>
+
+  <!-- 3. Old game music -->
+  <section id="old">
+    <h2>Old game music</h2>
+    <p>255 finished songs from the old game. Search by name. 20 per page.</p>
+    <label>Search
+      <input id="old-search" type="search" placeholder="Type part of a name…">
+    </label>
+    <div class="pager">
+      <button id="old-prev" class="big">Back</button>
+      <span id="old-page-info"></span>
+      <button id="old-next" class="big">Next</button>
+    </div>
+    <div id="old-list" class="rows"></div>
+    <div class="pager">
+      <button id="old-prev2" class="big">Back</button>
+      <span id="old-page-info2"></span>
+      <button id="old-next2" class="big">Next</button>
+    </div>
+  </section>
+
+  <!-- 4. How it works -->
+  <section id="how">
+    <h2>How it works</h2>
+    <p>Each sound is built from sound waves in code.</p>
+    <p>Each part gets its own file. That file is a stem.</p>
+    <p>All stems line up in time.</p>
+    <p>A mix is all the stems added together.</p>
+    <p>A seed makes the same music again, byte for byte.</p>
+    <p>QC checks each file. It must play, not be silent, and not clip.</p>
+    <h3>Commands agents use</h3>
+    <p>Agents use the same tool from the command line. Copy these:</p>
+    <div class="codebox">
+      <pre><code>python3 music_tool.py list --json
+python3 music_tool.py render rainy-window --seed 42 --json
+python3 music_tool.py make my-track --style lofi --tempo 80 --key "C minor" --bars 8 --seed 7 --json
+python3 music_tool.py qc --json</code></pre>
+      <button class="copy" data-copy="python3 music_tool.py list --json
+python3 music_tool.py render rainy-window --seed 42 --json
+python3 music_tool.py make my-track --style lofi --tempo 80 --key &quot;C minor&quot; --bars 8 --seed 7 --json
+python3 music_tool.py qc --json">Copy commands</button>
+    </div>
+    <p>Full agent rules are in <code>AGENTS.md</code> in the repo.</p>
+  </section>
+</main>
+
+<footer>
+  <p>Music Tool runs on your own machine. This page is local only. It is not a public host.</p>
+</footer>
+<script src="/app.js"></script>
+</body>
+</html>

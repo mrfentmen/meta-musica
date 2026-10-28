@@ -1,0 +1,88 @@
+/* Music Tool UI: big, clear, high contrast. No outside fonts. */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  font-size: 19px;
+  line-height: 1.55;
+  color: #111;
+  background: #f7f7f2;
+}
+header {
+  background: #111;
+  color: #fff;
+  padding: 28px 20px;
+}
+header h1 { margin: 0 0 6px; font-size: 44px; }
+.tagline { margin: 4px 0; font-size: 20px; }
+main { max-width: 960px; margin: 0 auto; padding: 10px 20px 40px; }
+section {
+  background: #fff;
+  border: 2px solid #111;
+  border-radius: 12px;
+  padding: 22px;
+  margin: 22px 0;
+}
+h2 { margin-top: 0; font-size: 30px; }
+h3 { font-size: 23px; }
+label { display: block; margin: 14px 0; font-weight: 700; }
+label small { display: block; font-weight: 400; color: #444; font-size: 16px; }
+input, select {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  margin-top: 6px;
+  padding: 13px;
+  font-size: 19px;
+  border: 2px solid #111;
+  border-radius: 8px;
+  background: #fff;
+}
+button, .big {
+  padding: 14px 26px;
+  font-size: 20px;
+  font-weight: 700;
+  border: 3px solid #111;
+  border-radius: 10px;
+  background: #ffd23f;
+  color: #111;
+  cursor: pointer;
+}
+button:hover, button:focus { background: #ffdf70; }
+button:disabled { opacity: 0.55; cursor: wait; }
+audio { width: 100%; max-width: 640px; margin: 6px 0 14px; }
+.status { font-weight: 700; min-height: 1.5em; }
+.badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  background: #ddd;
+}
+.badge.pass { background: #b6e8a6; }
+.badge.fail { background: #f5a9a9; }
+.cards { display: grid; gap: 16px; margin-top: 16px; }
+.card, .row {
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 16px;
+}
+.card h3, .row h3 { margin: 0 0 4px; }
+.card p, .row p { margin: 4px 0; }
+details { margin-top: 10px; }
+details summary { cursor: pointer; font-weight: 700; font-size: 19px; padding: 8px 0; }
+.stem { margin: 10px 0 10px 12px; border-left: 4px solid #ffd23f; padding-left: 12px; }
+.stem p { margin: 0 0 2px; font-weight: 700; }
+.rows { display: grid; gap: 12px; margin-top: 16px; }
+.row { display: block; }
+.pager { display: flex; gap: 14px; align-items: center; margin: 16px 0; flex-wrap: wrap; }
+.codebox { background: #111; color: #fff; border-radius: 10px; padding: 16px; }
+.codebox pre { overflow-x: auto; margin: 0 0 12px; }
+.codebox code { font-size: 16px; line-height: 1.5; white-space: pre-wrap; }
+.copy { background: #fff; }
+footer { text-align: center; padding: 20px; color: #444; }
+@media (max-width: 600px) {
+  body { font-size: 18px; }
+  header h1 { font-size: 34px; }
+  section { padding: 16px; }
+}
